@@ -715,14 +715,14 @@ namespace RaceBeam
 			{
 				int reportrow;
 				reportrow = dline;
-				string fname = report.GetField(reportrow.ToString(),"First Name");
+				string fname = report.GetField(reportrow.ToString(),"First name");
 				if (string.IsNullOrEmpty(fname) == true)
 				{
 					continue; // Ignore entire row if first name is blank?
 				}
 				fname = fname.Trim();
 				
-				string lname = report.GetField(reportrow.ToString(),"Last Name");
+				string lname = report.GetField(reportrow.ToString(),"Last name");
 				if (string.IsNullOrEmpty(lname) == true)
 				{
 					continue;
@@ -761,8 +761,26 @@ namespace RaceBeam
 						{
 							carnum = report.GetField(reportrow.ToString(),"No.");
 						}
-						// carnum = carnum.TrimStart('0');	// trim leading zeroes (confusing for timing)
-						if (string.IsNullOrEmpty(carnum) == true)
+
+                        if (string.IsNullOrEmpty(carnum) == true)
+                        {
+                            carnum = report.GetField(reportrow.ToString(), "#");
+                        }
+                        if (string.IsNullOrEmpty(carnum) == true)
+                        {
+                            carnum = report.GetField(reportrow.ToString(), "1st preferred #");
+                        }
+                        if (string.IsNullOrEmpty(carnum) == true)
+                        {
+                            carnum = report.GetField(reportrow.ToString(), "2nd preferred #");
+                        }
+                        if (string.IsNullOrEmpty(carnum) == true)
+                        {
+                            carnum = report.GetField(reportrow.ToString(), "3rd preferred #");
+                        }
+
+                        // carnum = carnum.TrimStart('0');	// trim leading zeroes (confusing for timing)
+                        if (string.IsNullOrEmpty(carnum) == true)
 						{
 							carnum = FindNumber().ToString();
 						}
@@ -866,7 +884,11 @@ namespace RaceBeam
 					{
 						carmodel = report.GetField(reportrow.ToString(),"Vehicle Year/Make/Model");
 					}
-					if (string.IsNullOrEmpty(carmodel) == true)
+                    if (string.IsNullOrEmpty(carmodel) == true)
+                    {
+                        carmodel = report.GetField(reportrow.ToString(), "Vehicle");
+                    }
+                    if (string.IsNullOrEmpty(carmodel) == true)
 					{
 						carmodel = "Unknown";
 					}

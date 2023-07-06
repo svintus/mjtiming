@@ -47,7 +47,7 @@ namespace RaceBeam
 		const string head = "<HTML><HEAD><BODY>";
 		const string pre = "<pre>";
 		const string post = "</pre></HEAD></BODY></HTML>";
-		const string links = "<li> <a href=\"/runs\">Runs</a> </li> <li> <a href=\"/pax\">PAX</a> </li> <li> <a href=\"/raw\">RAW</a> </li> <li> <a href=\"/classes\">Classes</a> </li> <li> <a href=\"/cones\">Cones</a> </li>";
+		private string links = "";
 		string style = "";
 		
 		HttpListener listener = null;
@@ -262,13 +262,31 @@ namespace RaceBeam
 				                          out rawTimes, out paxTimes,
 				                          out classtimes, out teamtimes,
 				                          out coneCounts, out statistics);
-				
-				if (args.showRunTimes)		results += separator + runTimes;
-				if (args.showRawTimes)		results += separator + rawTimes;
-				if (args.showPaxTimes)		results += separator + paxTimes;
-				if (args.showClassTimes)	results += separator + classtimes;
-				if (args.showConeCounts)	results += separator + coneCounts;
-				if (args.showTeams)			results += separator + teamtimes;
+				links = "";
+				if (args.showRunTimes)
+				{
+					results += separator + runTimes;
+					links += "<li> <a href=\"/runs\">Runs</a> </li>";
+                }
+				if (args.showRawTimes) {
+					results += separator + rawTimes;
+					links += " <li> <a href=\"/raw\">RAW</a> </li>";
+                }
+				if (args.showPaxTimes) {
+					results += separator + paxTimes;
+                    links += " <li> <a href=\"/pax\">PAX</a> </li>";
+                }
+				if (args.showClassTimes) {
+					results += separator + classtimes;
+                    links += " <li> <a href=\"/classes\">Classes</a> </li>";
+                }
+				if (args.showConeCounts) {
+					results += separator + coneCounts;
+                    links += " <li> <a href=\"/cones\">Penalties</a> </li>";
+                }
+				if (args.showTeams) {
+					results += separator + teamtimes;
+                }
 				compare_results = results;
 				if (string.IsNullOrEmpty(statistics) == false)
 					results += separator + statistics;
