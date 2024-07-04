@@ -56,6 +56,7 @@ namespace RaceBeam
 		public bool showRookie;			// Applies to raw/pax/class
 		public bool writeCSV;
 		public string title;
+		public string outFile;
 		public scoreArgs()
 		{
 			eventFolder = "";
@@ -77,6 +78,7 @@ namespace RaceBeam
 			showRookie = false;
 			writeCSV = false;
 			title = "";
+			outFile = string.Empty;
 		}
 		// copy constructor
 		public scoreArgs(scoreArgs src)
@@ -165,6 +167,10 @@ namespace RaceBeam
 			public double	PAXrookieScore;
 			public bool		PAXtrophy;
 			public bool		PAXrookieTrophy;
+			public double	RAWtoNext;
+			public double	RAWtoFirst;
+			public double	RookieRAWtoNext;
+			public double	RookieRAWtoFirst;
 
 			// For Group and XGroup (multiple groups here, with ones inXgroup separated by a ';')
 			public List<groupscore> groupScores = new List<groupscore>();
@@ -581,6 +587,9 @@ namespace RaceBeam
 			int rookieRank = 1;
 			double bestTime = 0.0;
 			double rookieBestTime = 0.0;
+			double prevTime = 0.0;
+			double prevRookieTime = 0.0;
+
 			var myList = new List<KeyValuePair<string, driverScoreData>>(scores);
 			// Sort by pax time
 			myList.Sort(delegate(KeyValuePair<string, driverScoreData> firstPair,
@@ -599,14 +608,20 @@ namespace RaceBeam
 				if (rank == 1)
 				{
 					bestTime = driver.Value.scoreData.bestPAX;
+					prevTime = bestTime;
 					driver.Value.scoreData.PAXscore = 100.00;
 					driver.Value.scoreData.PAXrank = 1;
+					driver.Value.scoreData.RAWtoFirst = 0.0;
+					driver.Value.scoreData.RAWtoNext = 0.0;
 				}
 				if ((rookieRank == 1) && (driver.Value.rookie == true))
 				{
 					rookieBestTime = driver.Value.scoreData.bestPAX;
+                    prevRookieTime = rookieBestTime;
 					driver.Value.scoreData.PAXrookieScore = 100.0;
 					driver.Value.scoreData.PAXRookieRank = 1;
+					driver.Value.scoreData.RookieRAWtoFirst = 0.0;
+					driver.Value.scoreData.RookieRAWtoNext = 0.0;
 				}
 				if (rank != 1)	// include rookies in overall
 				{
@@ -614,6 +629,29 @@ namespace RaceBeam
 					if (driver.Value.scoreData.bestPAX >= DNFvalue)
 					{
 						driver.Value.scoreData.PAXscore = 0.0;
+						//calc raw from pax difference
+						if (bestTime >= DNFvalue)
+                        {
+							driver.Value.scoreData.RAWtoFirst = 0.0;
+						}
+                        else
+						{
+							driver.Value.scoreData.RAWtoFirst = bestTime / driver.Value.pax;
+						}
+						if (prevTime >= DNFvalue)
+						{
+							driver.Value.scoreData.RAWtoNext = 0.0;
+						}
+						else
+						{
+							driver.Value.scoreData.RAWtoNext = prevTime / driver.Value.pax;
+						}
+					}
+					else
+                    {
+						//calc raw from pax difference
+						driver.Value.scoreData.RAWtoFirst = (driver.Value.scoreData.bestPAX - bestTime) /driver.Value.pax;
+						driver.Value.scoreData.RAWtoNext = (driver.Value.scoreData.bestPAX - prevTime) / driver.Value.pax;
 					}
 					driver.Value.scoreData.PAXrank = rank;
 					if (driver.Value.rookie == true)
@@ -622,14 +660,44 @@ namespace RaceBeam
 						if (driver.Value.scoreData.bestPAX >= DNFvalue)
 						{
 							driver.Value.scoreData.PAXrookieScore = 0.0;
+							if (rookieBestTime >= DNFvalue)
+							{
+								driver.Value.scoreData.RookieRAWtoFirst = 0.0;
+							}
+							else
+							{
+								driver.Value.scoreData.RookieRAWtoFirst = rookieBestTime / driver.Value.pax;
+							}
+							if (prevRookieTime >= DNFvalue)
+							{
+								driver.Value.scoreData.RookieRAWtoNext = 0.0;
+							}
+							else
+							{
+								driver.Value.scoreData.RookieRAWtoNext = prevRookieTime / driver.Value.pax;
+							}
+						}
+						else
+                        {
+							//calc raw from pax difference
+							driver.Value.scoreData.RookieRAWtoFirst = (driver.Value.scoreData.bestPAX - rookieBestTime) / driver.Value.pax;
+							driver.Value.scoreData.RookieRAWtoNext = (driver.Value.scoreData.bestPAX - prevRookieTime) / driver.Value.pax;
 						}
 						driver.Value.scoreData.PAXRookieRank = rookieRank;
 					}
+				}
+				if (driver.Value.scoreData.bestPAX < DNFvalue)
+				{
+					prevTime = driver.Value.scoreData.bestPAX;
 				}
 				rank += 1;
 				if (driver.Value.rookie == true)
 				{
 					rookieRank += 1;
+					if (driver.Value.scoreData.bestPAX < DNFvalue)
+					{
+						prevRookieTime = driver.Value.scoreData.bestPAX;
+					}
 				}
 			}
 		}
